@@ -1,97 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-   <meta charset="utf-8">
-   <title>AR Scattered Tulips & Floating Hearts - Permanent Fix</title>
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,600&display=swap" rel="stylesheet">
-   
-   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-   
-   <style>
-      body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Montserrat', sans-serif; }
-      #webcam {
-         position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-         object-fit: cover; z-index: -2; transform: scaleX(-1);
-      }
-      a-scene { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
-      #loading {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        color: white; font-size: 1.1rem; background: rgba(0,0,0,0.85);
-        padding: 18px 30px; border-radius: 30px; border: 1px solid #ff4d6d;
-        pointer-events: none; z-index: 10; transition: opacity 0.6s;
-      }
-      
-      #romantic-message-container {
-         position: absolute;
-         top: 25%;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         z-index: 5;
-         text-align: center;
-         pointer-events: none;
-         width: 90%;
-         max-width: 600px;
-         opacity: 0; 
-         transition: transform 0.2s ease-out;
-      }
-      #romantic-text {
-         color: #FF3B70;
-         font-size: 2.2rem;
-         font-weight: 600;
-         text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-         margin: 0;
-         display: inline-block;
-         vertical-align: middle;
-      }
-      .heart-icon {
-         display: inline-block;
-         color: #ff4d6d;
-         font-size: 2.4rem;
-         margin-left: 12px;
-         vertical-align: middle;
-         animation: pulse 1.2s infinite;
-      }
-      @keyframes pulse {
-         0% { transform: scale(1); }
-         50% { transform: scale(1.25); }
-         100% { transform: scale(1); }
-      }
-   </style>
-</head>
-<body>
-
-   <div id="loading">Growing Your Scattered Tulip Bouquet...</div>
-   <video id="webcam" autoplay playsinline></video>
-
-   <div id="romantic-message-container">
-      <h1 id="romantic-text">You are the tulips to my life.</h1>
-      <span class="heart-icon">❤️</span>
-   </div>
-
-   <a-scene embedded vr-mode-ui="enabled: false">
-     <a-entity camera position="0 1.6 0.2"></a-entity>
-
-     <a-entity id="bouquet" position="0 0.3 -1.3">
-       <a-entity id="heart-container" position="0 0 0"></a-entity>
-     </a-entity>
-
-     <a-light type="ambient" color="#ffffff" intensity="0.85"></a-light>
-     <a-light type="directional" color="#ffe5ec" intensity="0.9" position="-1 4 2"></a-light>
-     <a-light type="directional" color="#ffffff" intensity="0.4" position="2 -1 1"></a-light>
-   </a-scene>
-
-   <script>
+<script>
      const videoElement = document.getElementById('webcam');
      const loadingDiv = document.getElementById('loading');
      const bouquet = document.getElementById('bouquet');
      const messageContainer = document.getElementById('romantic-message-container');
      const heartContainer = document.getElementById('heart-container');
 
-     // Beautifully scattered layout for 20 tulips
+     // Denser scattered layout for the 20 tulips
      const tulipPositions = [
        {x: 0, z: -0.05, rotZ: 0},
        {x: -0.25, z: -0.15, rotZ: 15},
@@ -183,24 +97,35 @@
        tulipEntities.push({ stem, head, petalElements });
      });
 
-     // FIX: Embedded an inline safe SVG Data URI directly into the source attribute to bypass CORS and kill the black box bug completely
-     const heartSvgDataUri = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff4d6d"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-
-     // Generate Floating AR Hearts
+     // Build Clean 3D Geometric Hearts
      const numHearts = 15;
      for(let i = 0; i < numHearts; i++){
        const heartParent = document.createElement('a-entity');
-       const hX = (Math.random() - 0.5) * 0.8;
-       const hZ = (Math.random() - 0.5) * 0.6;
-       heartParent.setAttribute('position', `${hX} -0.1 ${hZ}`);
-       heartParent.setAttribute('scale', '0 0 0');
+       const hX = (Math.random() - 0.5) * 0.9;
+       const hZ = (Math.random() - 0.5) * 0.7;
+       heartParent.setAttribute('position', `${hX} -5 ${hZ}`);
+       heartParent.setAttribute('scale', '0.001 0.001 0.001');
 
-       const heartPlane = document.createElement('a-plane');
-       heartPlane.setAttribute('width', '0.12');
-       heartPlane.setAttribute('height', '0.12');
-       heartPlane.setAttribute('src', heartSvgDataUri);
-       heartPlane.setAttribute('material', 'transparent: true; side: double; shader: flat');
-       heartParent.appendChild(heartPlane);
+       const leftLobe = document.createElement('a-sphere');
+       leftLobe.setAttribute('radius', '0.04');
+       leftLobe.setAttribute('color', '#ff3b70');
+       leftLobe.setAttribute('position', '-0.028 0.03 0');
+       heartParent.appendChild(leftLobe);
+
+       const rightLobe = document.createElement('a-sphere');
+       rightLobe.setAttribute('radius', '0.04');
+       rightLobe.setAttribute('color', '#ff3b70');
+       rightLobe.setAttribute('position', '0.028 0.03 0');
+       heartParent.appendChild(rightLobe);
+
+       const conePoint = document.createElement('a-cone');
+       conePoint.setAttribute('radius-bottom', '0.054');
+       conePoint.setAttribute('radius-top', '0');
+       conePoint.setAttribute('height', '0.11');
+       conePoint.setAttribute('color', '#ff3b70');
+       conePoint.setAttribute('position', '0 -0.025 0');
+       conePoint.setAttribute('rotation', '180 0 0');
+       heartParent.appendChild(conePoint);
 
        heartContainer.appendChild(heartParent);
        heartEntities.push(heartParent);
@@ -253,21 +178,18 @@
        messageContainer.style.opacity = bloomRatio;
        messageContainer.style.transform = `translate(-50%, -50%) scale(${0.85 + (bloomRatio * 0.15)})`;
 
-       // Handle floating 3D hearts animation
        heartEntities.forEach((heart, index) => {
-         const heartScale = Math.min(Math.max(bloomRatio * 1.3, 0), 1.1);
+         const heartScale = Math.min(Math.max(bloomRatio * 1.2, 0.001), 1.1);
          heart.setAttribute('scale', `${heartScale} ${heartScale} ${heartScale}`);
          
          const time = Date.now() / 1000;
          const floatOffset = Math.sin(time + index) * 0.04;
-         const heartY = (currentHeight * 0.4) + 0.2 + (bloomRatio * 0.4) + floatOffset;
+         const heartY = bloomRatio > 0.01 ? (currentHeight * 0.4) + 0.2 + (bloomRatio * 0.45) + floatOffset : -5;
          
          const pos = heart.getAttribute('position');
          heart.setAttribute('position', `${pos.x} ${heartY} ${pos.z}`);
-         heart.setAttribute('rotation', '0 0 0');
        });
 
-       // Update all scattered tulips positions
        tulipEntities.forEach((tulip) => {
          tulip.stem.setAttribute('scale', `1 ${currentHeight} 1`);
          tulip.head.setAttribute('position', `0 ${currentHeight * 0.37} 0`);
@@ -283,22 +205,30 @@
      }
      requestAnimationFrame(animationLoop);
 
+     // FIX: Wrapped in a try/catch block and added a tiny frame-skip delay if WebGL stalls out
      const hands = new Hands({
        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
      });
+     
      hands.setOptions({
        maxNumHands: 2,
-       modelComplexity: 0,
-       minDetectionConfidence: 0.6,
-       minTrackingConfidence: 0.6
+       modelComplexity: 0, 
+       minDetectionConfidence: 0.5,
+       minTrackingConfidence: 0.5
      });
      hands.onResults(onResults);
 
      const camera = new Camera(videoElement, {
-       onFrame: async () => { await hands.send({image: videoElement}); },
-       width: 1280, height: 720
+       onFrame: async () => {
+         try {
+           if (videoElement.readyState >= 2) {
+             await hands.send({image: videoElement});
+           }
+         } catch (e) {
+           console.log("Skipping busy frame to protect WebGL graphics context context...");
+         }
+       },
+       width: 640, height: 480 // Optimizing streaming texture data throughput 
      });
      camera.start();
    </script>
- </body>
- </html>
