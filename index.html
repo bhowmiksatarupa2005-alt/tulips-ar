@@ -1,32 +1,96 @@
-<script>
-     const videoElement = document.getElementById('webcam');
-     const loadingDiv = document.getElementById('loading');
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <title>Interactive Scattered Tulips & Floating Hearts</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght=0,500;1,600&display=swap" rel="stylesheet">
+   
+   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+   
+   <style>
+      body { margin: 0; overflow: hidden; background: radial-gradient(circle, #fff5f7 0%, #ffe3e8 100%); font-family: 'Montserrat', sans-serif; }
+      a-scene { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+      
+      #instructions {
+        position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+        color: #ff4d6d; font-size: 1rem; font-weight: 500; background: rgba(255,255,255,0.9);
+        padding: 12px 25px; border-radius: 30px; box-shadow: 0 4px 15px rgba(255, 77, 109, 0.2);
+        pointer-events: none; z-index: 10; text-align: center;
+      }
+
+      #romantic-message-container {
+         position: absolute;
+         top: 22%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 5;
+         text-align: center;
+         pointer-events: none;
+         width: 90%;
+         max-width: 600px;
+         opacity: 0; 
+         transition: transform 0.2s ease-out;
+      }
+      #romantic-text {
+         color: #FF3B70;
+         font-size: 2.2rem;
+         font-weight: 600;
+         text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
+         margin: 0;
+         display: inline-block;
+         vertical-align: middle;
+      }
+      .heart-icon {
+         display: inline-block;
+         color: #ff4d6d;
+         font-size: 2.4rem;
+         margin-left: 12px;
+         vertical-align: middle;
+         animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+         0% { transform: scale(1); }
+         50% { transform: scale(1.25); }
+         100% { transform: scale(1); }
+      }
+   </style>
+</head>
+<body>
+
+   <div id="instructions">Scroll up/down or swipe up/down on your screen to watch them bloom!</div>
+
+   <div id="romantic-message-container">
+      <h1 id="romantic-text">You are the tulips to my life.</h1>
+      <span class="heart-icon">❤️</span>
+   </div>
+
+   <a-scene embedded vr-mode-ui="enabled: false">
+     <a-entity camera position="0 1.4 0.4"></a-entity>
+
+     <a-entity id="bouquet" position="0 0.1 -1.2">
+       <a-entity id="heart-container" position="0 0 0"></a-entity>
+     </a-entity>
+
+     <a-light type="ambient" color="#ffffff" intensity="0.9"></a-light>
+     <a-light type="directional" color="#ffe5ec" intensity="0.8" position="-1 4 2"></a-light>
+     <a-light type="directional" color="#ffffff" intensity="0.3" position="2 -1 1"></a-light>
+   </a-scene>
+
+   <script>
      const bouquet = document.getElementById('bouquet');
      const messageContainer = document.getElementById('romantic-message-container');
      const heartContainer = document.getElementById('heart-container');
 
-     // Denser scattered layout for the 20 tulips
      const tulipPositions = [
-       {x: 0, z: -0.05, rotZ: 0},
-       {x: -0.25, z: -0.15, rotZ: 15},
-       {x: 0.25, z: -0.15, rotZ: -15},
-       {x: -0.15, z: 0.15, rotZ: 8},
-       {x: 0.15, z: 0.15, rotZ: -8},
-       {x: -0.45, z: -0.25, rotZ: 28},
-       {x: 0.45, z: -0.25, rotZ: -28},
-       {x: -0.38, z: 0.05, rotZ: 20},
-       {x: 0.38, z: 0.05, rotZ: -20},
-       {x: -0.55, z: 0.25, rotZ: -12},
-       {x: 0.55, z: 0.25, rotZ: 12},
-       {x: -0.3, z: 0.35, rotZ: -15},
-       {x: 0.3, z: 0.35, rotZ: 15},
-       {x: -0.12, z: 0.45, rotZ: -5},
-       {x: 0.12, z: 0.45, rotZ: 5},
-       {x: 0, z: 0.55, rotZ: 0},
-       {x: -0.65, z: -0.1, rotZ: 32},
-       {x: 0.65, z: -0.1, rotZ: -32},
-       {x: -0.35, z: -0.4, rotZ: 22},
-       {x: 0.35, z: -0.4, rotZ: -22}
+       {x: 0, z: -0.05, rotZ: 0}, {x: -0.25, z: -0.15, rotZ: 15}, {x: 0.25, z: -0.15, rotZ: -15},
+       {x: -0.15, z: 0.15, rotZ: 8}, {x: 0.15, z: 0.15, rotZ: -8}, {x: -0.45, z: -0.25, rotZ: 28},
+       {x: 0.45, z: -0.25, rotZ: -28}, {x: -0.38, z: 0.05, rotZ: 20}, {x: 0.38, z: 0.05, rotZ: -20},
+       {x: -0.55, z: 0.25, rotZ: -12}, {x: 0.55, z: 0.25, rotZ: 12}, {x: -0.3, z: 0.35, rotZ: -15},
+       {x: 0.3, z: 0.35, rotZ: 15}, {x: -0.12, z: 0.45, rotZ: -5}, {x: 0.12, z: 0.45, rotZ: 5},
+       {x: 0, z: 0.55, rotZ: 0}, {x: -0.65, z: -0.1, rotZ: 32}, {x: 0.65, z: -0.1, rotZ: -32},
+       {x: -0.35, z: -0.4, rotZ: 22}, {x: 0.35, z: -0.4, rotZ: -22}
      ];
 
      const tulipEntities = [];
@@ -74,14 +138,12 @@
          petal.setAttribute('radius-top', '0.01');
          petal.setAttribute('height', '0.15');
          petal.setAttribute('open-ended', 'true');
-         
          const petalColor = (index % 2 === 0) ? '#ff4d6d' : '#ff758f';
          petal.setAttribute('color', petalColor);
          petal.setAttribute('material', 'side: double; roughness: 0.6; metalness: 0.1');
 
          const pivotAnchor = document.createElement('a-entity');
          pivotAnchor.setAttribute('rotation', `0 ${angle} 0`);
-         
          petal.setAttribute('position', '0 0.06 0.04');
          petal.setAttribute('rotation', '12 0 0');
          
@@ -97,7 +159,7 @@
        tulipEntities.push({ stem, head, petalElements });
      });
 
-     // Build Clean 3D Geometric Hearts
+     // Build Geometric Hearts
      const numHearts = 15;
      for(let i = 0; i < numHearts; i++){
        const heartParent = document.createElement('a-entity');
@@ -131,46 +193,34 @@
        heartEntities.push(heartParent);
      }
 
-     let currentScale = 0.1; 
-     let targetScale = 0.1;
-     let currentHeight = 0.3;
-     let targetHeight = 0.3;
-     const smoothingFactor = 0.15;
+     // Smooth Scroll Interaction Mechanics
+     let bloomProgress = 0.1; 
+     let targetBloomProgress = 0.1;
+     const smoothingFactor = 0.1;
 
-     function getDistance(p1, p2) {
-       return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2) + Math.pow(p1.z - p2.z, 2));
-     }
+     // Wheel Control
+     window.addEventListener('wheel', (e) => {
+       targetBloomProgress += e.deltaY * -0.001;
+       targetBloomProgress = Math.min(Math.max(targetBloomProgress, 0.1), 1.5);
+     });
 
-     function onResults(results) {
-       if (loadingDiv && results.multiHandLandmarks.length > 0) {
-         loadingDiv.style.opacity = 0;
-         setTimeout(() => loadingDiv.remove(), 500);
-       }
-
-       if (results.multiHandLandmarks && results.multiHandedness) {
-         for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-           const landmarks = results.multiHandLandmarks[i];
-           const handType = results.multiHandedness[i].label;
-
-           const thumbTip = landmarks[4];
-           const indexTip = landmarks[8];
-           const pinchDistance = getDistance(thumbTip, indexTip);
-           
-           let normValue = (pinchDistance - 0.02) / 0.13;
-           normValue = Math.min(Math.max(normValue, 0.05), 1.6);
-
-           if (handType === 'Left') {
-             targetHeight = normValue * 1.4;
-           } else if (handType === 'Right') {
-             targetScale = normValue;
-           }
-         }
-       }
-     }
+     // Touch Control for Mobile Device Screens
+     let touchStart = 0;
+     window.addEventListener('touchstart', (e) => {
+       touchStart = e.touches[0].clientY;
+     });
+     window.addEventListener('touchmove', (e) => {
+       let touchDiff = touchStart - e.touches[0].clientY;
+       targetBloomProgress += touchDiff * 0.005;
+       targetBloomProgress = Math.min(Math.max(targetBloomProgress, 0.1), 1.5);
+       touchStart = e.touches[0].clientY;
+     });
 
      function animationLoop() {
-       currentScale += (targetScale - currentScale) * smoothingFactor;
-       currentHeight += (targetHeight - currentHeight) * smoothingFactor;
+       bloomProgress += (targetBloomProgress - bloomProgress) * smoothingFactor;
+
+       let currentScale = bloomProgress;
+       let currentHeight = bloomProgress * 1.1;
 
        let bloomRatio = (currentScale - 0.65) / 0.55;
        bloomRatio = Math.min(Math.max(bloomRatio, 0), 1);
@@ -204,31 +254,6 @@
        requestAnimationFrame(animationLoop);
      }
      requestAnimationFrame(animationLoop);
-
-     // FIX: Wrapped in a try/catch block and added a tiny frame-skip delay if WebGL stalls out
-     const hands = new Hands({
-       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-     });
-     
-     hands.setOptions({
-       maxNumHands: 2,
-       modelComplexity: 0, 
-       minDetectionConfidence: 0.5,
-       minTrackingConfidence: 0.5
-     });
-     hands.onResults(onResults);
-
-     const camera = new Camera(videoElement, {
-       onFrame: async () => {
-         try {
-           if (videoElement.readyState >= 2) {
-             await hands.send({image: videoElement});
-           }
-         } catch (e) {
-           console.log("Skipping busy frame to protect WebGL graphics context context...");
-         }
-       },
-       width: 640, height: 480 // Optimizing streaming texture data throughput 
-     });
-     camera.start();
    </script>
+ </body>
+ </html>
