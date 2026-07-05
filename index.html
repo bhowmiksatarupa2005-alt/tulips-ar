@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <title>AR Scattered Tulips & Floating Hearts - Permanent Fix</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,600&display=swap" rel="stylesheet">
+   
+   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+   
+   <style>
+      body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Montserrat', sans-serif; }
+      #webcam {
+         position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+         object-fit: cover; z-index: -2; transform: scaleX(-1);
+      }
+      a-scene { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+      #loading {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        color: white; font-size: 1.1rem; background: rgba(0,0,0,0.85);
+        padding: 18px 30px; border-radius: 30px; border: 1px solid #ff4d6d;
+        pointer-events: none; z-index: 10; transition: opacity 0.6s;
+      }
+      
+      #romantic-message-container {
+         position: absolute;
+         top: 25%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         z-index: 5;
+         text-align: center;
+         pointer-events: none;
+         width: 90%;
+         max-width: 600px;
+         opacity: 0; 
+         transition: transform 0.2s ease-out;
+      }
+      #romantic-text {
+         color: #FF3B70;
+         font-size: 2.2rem;
+         font-weight: 600;
+         text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+         margin: 0;
+         display: inline-block;
+         vertical-align: middle;
+      }
+      .heart-icon {
+         display: inline-block;
+         color: #ff4d6d;
+         font-size: 2.4rem;
+         margin-left: 12px;
+         vertical-align: middle;
+         animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+         0% { transform: scale(1); }
+         50% { transform: scale(1.25); }
+         100% { transform: scale(1); }
+      }
+   </style>
+</head>
+<body>
+
+   <div id="loading">Growing Your Scattered Tulip Bouquet...</div>
+   <video id="webcam" autoplay playsinline></video>
+
+   <div id="romantic-message-container">
+      <h1 id="romantic-text">You are the tulips to my life.</h1>
+      <span class="heart-icon">❤️</span>
+   </div>
+
+   <a-scene embedded vr-mode-ui="enabled: false">
+     <a-entity camera position="0 1.6 0.2"></a-entity>
+
+     <a-entity id="bouquet" position="0 0.3 -1.3">
+       <a-entity id="heart-container" position="0 0 0"></a-entity>
+     </a-entity>
+
+     <a-light type="ambient" color="#ffffff" intensity="0.85"></a-light>
+     <a-light type="directional" color="#ffe5ec" intensity="0.9" position="-1 4 2"></a-light>
+     <a-light type="directional" color="#ffffff" intensity="0.4" position="2 -1 1"></a-light>
+   </a-scene>
+
+   <script>
+     const videoElement = document.getElementById('webcam');
+     const loadingDiv = document.getElementById('loading');
+     const bouquet = document.getElementById('bouquet');
+     const messageContainer = document.getElementById('romantic-message-container');
+     const heartContainer = document.getElementById('heart-container');
+
+     // Beautifully scattered layout for 20 tulips
+     const tulipPositions = [
+       {x: 0, z: -0.05, rotZ: 0},
+       {x: -0.25, z: -0.15, rotZ: 15},
+       {x: 0.25, z: -0.15, rotZ: -15},
+       {x: -0.15, z: 0.15, rotZ: 8},
+       {x: 0.15, z: 0.15, rotZ: -8},
+       {x: -0.45, z: -0.25, rotZ: 28},
+       {x: 0.45, z: -0.25, rotZ: -28},
+       {x: -0.38, z: 0.05, rotZ: 20},
+       {x: 0.38, z: 0.05, rotZ: -20},
+       {x: -0.55, z: 0.25, rotZ: -12},
+       {x: 0.55, z: 0.25, rotZ: 12},
+       {x: -0.3, z: 0.35, rotZ: -15},
+       {x: 0.3, z: 0.35, rotZ: 15},
+       {x: -0.12, z: 0.45, rotZ: -5},
+       {x: 0.12, z: 0.45, rotZ: 5},
+       {x: 0, z: 0.55, rotZ: 0},
+       {x: -0.65, z: -0.1, rotZ: 32},
+       {x: 0.65, z: -0.1, rotZ: -32},
+       {x: -0.35, z: -0.4, rotZ: 22},
+       {x: 0.35, z: -0.4, rotZ: -22}
+     ];
+
+     const tulipEntities = [];
+     const heartEntities = [];
+
+     // Build Scattered Tulips
+     tulipPositions.forEach((pos) => {
+       const flowerParent = document.createElement('a-entity');
+       flowerParent.setAttribute('position', `${pos.x} 0 ${pos.z}`);
+       flowerParent.setAttribute('rotation', `0 0 ${pos.rotZ}`);
+
+       const stem = document.createElement('a-entity');
+       stem.setAttribute('scale', '1 0.1 1');
+       const stemGeom = document.createElement('a-cylinder');
+       stemGeom.setAttribute('radius', '0.007');
+       stemGeom.setAttribute('height', '0.75');
+       stemGeom.setAttribute('color', '#2d6a4f');
+       stem.appendChild(stemGeom);
+
+       const leaf = document.createElement('a-cone');
+       leaf.setAttribute('radius-bottom', '0.03');
+       leaf.setAttribute('radius-top', '0');
+       leaf.setAttribute('height', '0.25');
+       leaf.setAttribute('scale', '0.3 1 1');
+       leaf.setAttribute('color', '#40916c');
+       leaf.setAttribute('position', '0.02 0.15 0');
+       leaf.setAttribute('rotation', '15 0 -20');
+       stem.appendChild(leaf);
+
+       const head = document.createElement('a-entity');
+       head.setAttribute('position', '0 0.37 0');
+
+       const base = document.createElement('a-sphere');
+       base.setAttribute('radius', '0.02');
+       base.setAttribute('color', '#2d6a4f');
+       base.setAttribute('position', '0 -0.02 0');
+       head.appendChild(base);
+
+       const petalAngles = [0, 60, 120, 180, 240, 300];
+       const petalElements = [];
+
+       petalAngles.forEach((angle, index) => {
+         const petal = document.createElement('a-cone');
+         petal.setAttribute('radius-bottom', '0.06');
+         petal.setAttribute('radius-top', '0.01');
+         petal.setAttribute('height', '0.15');
+         petal.setAttribute('open-ended', 'true');
+         
+         const petalColor = (index % 2 === 0) ? '#ff4d6d' : '#ff758f';
+         petal.setAttribute('color', petalColor);
+         petal.setAttribute('material', 'side: double; roughness: 0.6; metalness: 0.1');
+
+         const pivotAnchor = document.createElement('a-entity');
+         pivotAnchor.setAttribute('rotation', `0 ${angle} 0`);
+         
+         petal.setAttribute('position', '0 0.06 0.04');
+         petal.setAttribute('rotation', '12 0 0');
+         
+         pivotAnchor.appendChild(petal);
+         head.appendChild(pivotAnchor);
+         petalElements.push(petal);
+       });
+
+       flowerParent.appendChild(stem);
+       flowerParent.appendChild(head);
+       bouquet.appendChild(flowerParent);
+
+       tulipEntities.push({ stem, head, petalElements });
+     });
+
+     // FIX: Embedded an inline safe SVG Data URI directly into the source attribute to bypass CORS and kill the black box bug completely
+     const heartSvgDataUri = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ff4d6d"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+
+     // Generate Floating AR Hearts
+     const numHearts = 15;
+     for(let i = 0; i < numHearts; i++){
+       const heartParent = document.createElement('a-entity');
+       const hX = (Math.random() - 0.5) * 0.8;
+       const hZ = (Math.random() - 0.5) * 0.6;
+       heartParent.setAttribute('position', `${hX} -0.1 ${hZ}`);
+       heartParent.setAttribute('scale', '0 0 0');
+
+       const heartPlane = document.createElement('a-plane');
+       heartPlane.setAttribute('width', '0.12');
+       heartPlane.setAttribute('height', '0.12');
+       heartPlane.setAttribute('src', heartSvgDataUri);
+       heartPlane.setAttribute('material', 'transparent: true; side: double; shader: flat');
+       heartParent.appendChild(heartPlane);
+
+       heartContainer.appendChild(heartParent);
+       heartEntities.push(heartParent);
+     }
+
+     let currentScale = 0.1; 
+     let targetScale = 0.1;
+     let currentHeight = 0.3;
+     let targetHeight = 0.3;
+     const smoothingFactor = 0.15;
+
+     function getDistance(p1, p2) {
+       return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2) + Math.pow(p1.z - p2.z, 2));
+     }
+
+     function onResults(results) {
+       if (loadingDiv && results.multiHandLandmarks.length > 0) {
+         loadingDiv.style.opacity = 0;
+         setTimeout(() => loadingDiv.remove(), 500);
+       }
+
+       if (results.multiHandLandmarks && results.multiHandedness) {
+         for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+           const landmarks = results.multiHandLandmarks[i];
+           const handType = results.multiHandedness[i].label;
+
+           const thumbTip = landmarks[4];
+           const indexTip = landmarks[8];
+           const pinchDistance = getDistance(thumbTip, indexTip);
+           
+           let normValue = (pinchDistance - 0.02) / 0.13;
+           normValue = Math.min(Math.max(normValue, 0.05), 1.6);
+
+           if (handType === 'Left') {
+             targetHeight = normValue * 1.4;
+           } else if (handType === 'Right') {
+             targetScale = normValue;
+           }
+         }
+       }
+     }
+
+     function animationLoop() {
+       currentScale += (targetScale - currentScale) * smoothingFactor;
+       currentHeight += (targetHeight - currentHeight) * smoothingFactor;
+
+       let bloomRatio = (currentScale - 0.65) / 0.55;
+       bloomRatio = Math.min(Math.max(bloomRatio, 0), 1);
+       
+       messageContainer.style.opacity = bloomRatio;
+       messageContainer.style.transform = `translate(-50%, -50%) scale(${0.85 + (bloomRatio * 0.15)})`;
+
+       // Handle floating 3D hearts animation
+       heartEntities.forEach((heart, index) => {
+         const heartScale = Math.min(Math.max(bloomRatio * 1.3, 0), 1.1);
+         heart.setAttribute('scale', `${heartScale} ${heartScale} ${heartScale}`);
+         
+         const time = Date.now() / 1000;
+         const floatOffset = Math.sin(time + index) * 0.04;
+         const heartY = (currentHeight * 0.4) + 0.2 + (bloomRatio * 0.4) + floatOffset;
+         
+         const pos = heart.getAttribute('position');
+         heart.setAttribute('position', `${pos.x} ${heartY} ${pos.z}`);
+         heart.setAttribute('rotation', '0 0 0');
+       });
+
+       // Update all scattered tulips positions
+       tulipEntities.forEach((tulip) => {
+         tulip.stem.setAttribute('scale', `1 ${currentHeight} 1`);
+         tulip.head.setAttribute('position', `0 ${currentHeight * 0.37} 0`);
+
+         tulip.petalElements.forEach((petal) => {
+           const flareRotation = 12 + (currentScale * 25);
+           petal.setAttribute('rotation', `${flareRotation} 0 0`);
+           petal.setAttribute('scale', `${0.8 + (currentScale * 0.35)} 1 1`);
+         });
+       });
+
+       requestAnimationFrame(animationLoop);
+     }
+     requestAnimationFrame(animationLoop);
+
+     const hands = new Hands({
+       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+     });
+     hands.setOptions({
+       maxNumHands: 2,
+       modelComplexity: 0,
+       minDetectionConfidence: 0.6,
+       minTrackingConfidence: 0.6
+     });
+     hands.onResults(onResults);
+
+     const camera = new Camera(videoElement, {
+       onFrame: async () => { await hands.send({image: videoElement}); },
+       width: 1280, height: 720
+     });
+     camera.start();
+   </script>
+ </body>
+ </html>
